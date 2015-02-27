@@ -1,7 +1,7 @@
 % beamerPoster7.Rnw
 % COPIED this from https://gist.github.com/duncandoo/7809461
 \documentclass[final]{beamer}
-\usetheme{UNC3} 
+\usetheme{UNC4} 
 %\usetheme{Warsaw}
 %\usefonttheme[stillsansserifsmall]{serif}
 
@@ -11,6 +11,7 @@
 %\usepackage[orientation=landscape, size=a0, scale=1.5]{beamerposter}
 %\usepackage[numbers,sort]{natbib}
 \usepackage{amsmath}
+\usepackage{epstopdf}
 
 \usepackage{array,booktabs,tabularx}
 \usepackage[skip=0pt]{caption}
@@ -46,8 +47,8 @@ library(mice)
 %\title{Childhood BMI associated with low HDL-C levels in adolescence in a Chilean cohort}
 \author[vonholle@email.unc.edu]{Ann Von Holle, Kari North, Anne Justice, UNC, Chapel Hill, NC; \\ Eastern Kang, Estela Blanco, Sheila Gahagan, UCSD, San Diego, CA}
 \institute{UNC}
-\titlegraphic{logo_blackontransp_small.png} %this is the path to your logo
-
+%\titlegraphic{logo_blackontransp_small.png} %this is the path to your logo
+\titlegraphic{unc-black.eps} %this is the path to your logo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -89,7 +90,7 @@ library(mice)
 %------------------------------------------
 \begin{wrapfigure}{l}{10cm}
 \label{wrap-fig:1}
-\includegraphics[width=10cm]{chile_sm_2014}
+\includegraphics[width=10cm]{401px-Chile_location_map.png}
 \end{wrapfigure} 
 %------------------------------------------
 {\normalsize Approximately 1,100 full-term infants $\ge$ 3 kg from Santiago, Chile were recruited from 1991 to 1996. Participants were from lower/middle class and ethnically mixed American Indian and Spanish descent families. 677 completed CVD risk factor assessments at 16-17 years.

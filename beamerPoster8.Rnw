@@ -14,6 +14,7 @@
 %\usepackage[orientation=landscape, size=a0, scale=1.5]{beamerposter}
 %\usepackage[numbers,sort]{natbib}
 \usepackage{amsmath}
+\usepackage{epstopdf}
 
 \usepackage{array,booktabs,tabularx}
 \usepackage[skip=0pt]{caption}
@@ -49,7 +50,8 @@ library(mice)
 %\title{Childhood BMI associated with low HDL-C levels in adolescence in a Chilean cohort}
 \author[vonholle@email.unc.edu]{Ann Von Holle, Kari North, Anne Justice, UNC, Chapel Hill, NC; \\ Eastern Kang, Estela Blanco, Sheila Gahagan, UCSD, San Diego, CA}
 \institute{UNC}
-\titlegraphic{logo_blackontransp_small.png} %this is the path to your logo
+%\titlegraphic{logo_blackontransp_small.png} %this is the path to your logo
+\titlegraphic{unc-black.eps} %this is the path to your logo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -80,14 +82,13 @@ library(mice)
   \end{itemize}
 \end{block}
 
-  
 \begin{block}{Sample}
 
 %------------------------------------------
 \begin{wrapfigure}{l}{10cm}
 \label{wrap-fig:1}
 %\includegraphics[width=10cm]{chile_sm_2014}
-\includegraphics[width=10cm]{Ci-map-CIA}
+\includegraphics[width=10cm]{401px-Chile_location_map.png}
 \end{wrapfigure} 
 %------------------------------------------
 {\large Approximately 1,100 full-term infants $\ge$ 3 kg from Santiago, Chile were recruited from 1991 to 1996. Participants were from lower/middle class and ethnically mixed American Indian and Spanish descent families. 677 completed CVD risk factor assessments at 16-17 years.
@@ -527,7 +528,7 @@ source("multiplot.R")
 \end{wrapfigure} 
 %------------------------------------------
 {\large
-Logistic regression models were used to estimate the odds ratios of low HDL-C ($\le$40 mg/dL) for a one unit change in BMI z-scores at age 5. Analyses stratified by sex of child and multiple imputation methods handled missing values. 
+Logistic regression models were used to estimate the odds ratios of low HDL-C ($\le$40 mg/dL) for a one unit change in BMI z-scores at age 5. Analyses were stratified by sex of child and multiple imputation methods handled missing values. 
 % We used longitudinal data from the Santiago Longitudinal Cohort study. Participants were enrolled as infants between 1991 and 1996. As such, they have experienced Chile's rapid modernization and dramatic changes in diet, activity, and environment. At 5 years, height and weight were measured to 0.1 kg using a SECA scale and 0.1 cm using a Holtain stadiometer. BMI (kg/m2) was calculated and converted to z-scores (WHO Standards). HDL-C was measured following standard protocols and classified as low if HDL-C $\le$ 40 mg/dL. We implemented a logistic regression to assess the association between BMI z-scores at age five and clinically defined low HDL-C levels at age 17. Covariates in the model included sex, gestational age, maternal education, household social status, and maternal age at birth.
 
 %------------------------------------------
@@ -622,7 +623,6 @@ latex(summary(sub.i2.hmisc$"Sex of child" ~ .,
 %The total sample included 677 children who had weight measurements at age five and subsequent cardiovascular testing at age 17. Descriptive statistics include: 47\% female, mean 5-year BMI percentile was 72.5 $\pm$ 25.2, mean 17-year HDL-C was 40.2 $\pm$ 10.6, and 53\% (n=359) in the low HDL-C group. Mean 5-year BMI percentile was higher in the low HDL-C group than the high HDL-C group (75.2 $\pm$ 24.2 vs. 69.4 $\pm$ 26.1). Without adjustment for relevant confounders, BMI z-score was associated with an odds ratio of 1.32 (95\% CI: 1.13, 1.55; p-value $<$ 0.01) for the low HDL-C group compared to the high HDL-C group. With adjustment for all relevant confounders the adjusted odds ratio was 1.36 (95\% CI: 1.15, 1.60; p-value $<$ 0.01).
 
 <<echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
-#
 booktabs() # for some reason you have to run this command line for the yes and no to be separated properly.
 @
 
@@ -630,7 +630,7 @@ booktabs() # for some reason you have to run this command line for the yes and n
 \begin{figure}
 \centering
 \caption{\large Figure 1. Association between BMI z-scores and HDL-C}
-\resizebox{.8\textwidth}{!}{%
+\resizebox{.95\textwidth}{!}{%
 <<show.plot.girl, echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.align='center', fig.width=10, fig.height=8, out.height="0.8\\textwidth", out.width="1.0\\textwidth", fig.pos="H">>=
  allz
  #multiplot(boyz, girlz, cols=2) # plot side by side instead of superimposed.
@@ -649,7 +649,6 @@ booktabs() # for some reason you have to run this command line for the yes and n
 \label{t4}
 \large
 <<regress1, results='asis'>>=
-
 latex(tab.rev, 
       file="", 
       booktabs=T, 
