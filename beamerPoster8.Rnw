@@ -1,0 +1,751 @@
+% beamerPoster8.Rnw
+% NOTE: this version has condensed text compared to version 7.
+
+% COPIED this from https://gist.github.com/duncandoo/7809461
+\documentclass[final]{beamer}
+\usetheme{UNC4} 
+%\usetheme{Warsaw}
+%\usefonttheme[stillsansserifsmall]{serif}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+%\usepackage[orientation=landscape, size=custom,width=142.24, height=91.44, scale=1.7]{beamerposter} % these match 56 by 36 inches -- ARIC template
+\usepackage[orientation=landscape, size=custom, width=152.3, height=91.44, scale=1.7]{beamerposter}  % this matches 60 by 36 inches.
+%\usepackage[orientation=landscape, size=a0, scale=1.5]{beamerposter}
+%\usepackage[numbers,sort]{natbib}
+\usepackage{amsmath}
+
+\usepackage{array,booktabs,tabularx}
+\usepackage[skip=0pt]{caption}
+\usepackage{setspace}
+\usepackage{graphicx,wrapfig,lipsum}
+\usepackage{pgf,tikz} % see http://codealamode.blogspot.com/2013/06/drawing-dags-latex-solution.html
+\usetikzlibrary{matrix, shapes, arrows, positioning, chains}
+%\usepackage[T1]{fontenc}
+%\usepackage{arev}
+  
+<<mainSettings, echo=FALSE, include=FALSE>>=
+opts_chunk$set(echo=FALSE, comment=NA, message=FALSE, results='asis', cache=TRUE, fig.height=5)
+library(knitr)
+library(ggplot2)
+library(mi)
+library(xtable)
+library(reshape2)
+library(tables)
+library(Hmisc)
+library(rms)
+library(tableone)
+#install.packages("mice")
+library(mice)
+@
+
+
+% This is based on the template at http://www-i6.informatik.rwth-aachen.de/~dreuw/latexbeamerposter.php
+
+%%%%%%%%%%%%%%%%%%%%% Edit this section with your info %%%%%%%%%%%%%%%%%%%%%%%
+% see http://tex.stackexchange.com/questions/9740/how-can-i-add-vertical-space-to-a-beamercolorbox-to-make-it-align-with-another-o
+\title{Childhood body mass index (BMI) z-scores associated with low HDL-C levels in adolescence in a Chilean cohort \rule[-1\normalbaselineskip]{0pt}{0pt}}
+%\title{\setlength\lineskip{20pt}Childhood BMI associated with low HDL-C levels in adolescence in a Chilean cohort}
+%\title{Childhood BMI associated with low HDL-C levels in adolescence in a Chilean cohort}
+\author[vonholle@email.unc.edu]{Ann Von Holle, Kari North, Anne Justice, UNC, Chapel Hill, NC; \\ Eastern Kang, Estela Blanco, Sheila Gahagan, UCSD, San Diego, CA}
+\institute{UNC}
+\titlegraphic{logo_blackontransp_small.png} %this is the path to your logo
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\setbeamertemplate{caption}{\insertcaption}
+
+\begin{frame}
+\begin{columns}[T]
+
+% ---------------------------------------------------------%
+% Set up a column
+\begin{column}{0.19\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth} % tweaks the width, makes a new \textwidth
+% fill each column with content
+\vfill
+
+  % fill each column with content
+\begin{block}{Introduction}
+\begin{itemize}
+\large 
+  \item Early childhood body mass index (BMI) is associated with cardiovascular disease (CVD) risk factors.
+  \item Low HDL-C, a major CVD risk factor, tracks from childhood to adulthoood.
+  \item Most evidence corresponds to European populations with cross sectional data. 
+  \item This Chilean sample typifies the epidemiological transition, moving from infectious disease and malnutrition to chronic disease and an obesogenic environment in the 1980s.
+  \end{itemize}
+\end{block}
+
+  
+\begin{block}{Sample}
+
+%------------------------------------------
+\begin{wrapfigure}{l}{10cm}
+\label{wrap-fig:1}
+%\includegraphics[width=10cm]{chile_sm_2014}
+\includegraphics[width=10cm]{Ci-map-CIA}
+\end{wrapfigure} 
+%------------------------------------------
+{\large Approximately 1,100 full-term infants $\ge$ 3 kg from Santiago, Chile were recruited from 1991 to 1996. Participants were from lower/middle class and ethnically mixed American Indian and Spanish descent families. 677 completed CVD risk factor assessments at 16-17 years.
+%\vskip5ex
+\par
+%------------------------------------------
+}
+
+%   \begin{wrapfig}
+%   \label{wrap-fig:1}
+%   \includegraphics[scale=2.5]{chile_sm_2014} %source of file: http://www.lib.utexas.edu/maps/chile.html
+%   \end{wrapfig}
+%   
+%   {Figure~\ref{wrap-fig:1} \large Chilean sample [add here] blah blah blah We used longitudinal data from the Santiago Longitudinal Cohort study. Participants were enrolled as infants between 1991 and 1996. As such, they have experienced Chile's rapid modernization and dramatic changes in diet, activity, and environment. At 5 years, height and weight were measured to 0.1 kg using a SECA scale and 0.1 cm using a Holtain stadiometer. BMI (kg/m2) was calculated and converted to z-scores (WHO Standards). HDL-C was measured following standard protocols and classified as low if HDL-C $\le$ 40 mg/dL. We implemented a logistic regression to assess the association between BMI z-scores at age five and clinically defined low HDL-C levels at age 17. Covariates in the model included sex, gestational age, maternal education, household social status, and maternal age at birth.
+  
+  \end{block}
+  
+  \vfill
+
+
+\end{minipage}
+\end{beamercolorbox}
+\end{column}
+% ---------------------------------------------------------%
+% end the column
+
+% This part takes code from imputation.1.R
+<<getdata1, echo=FALSE, cache=F, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+setwd("C:/Users/vonholle/Documents/grad_school/classes/epid.718/projects/part1/programs/R")
+load(file="efc.final.Rdata")
+names(efc.final)
+
+summary(efc.final$A.age)
+
+# identify variables by continuous or categorical status
+# center some of the analysis variables
+efc.final$f.bmiz5y.cent <- as.numeric(scale(efc.final$f.bmiz5y, center=T, scale=F)) # no imputation will occur if it's in matrix form
+class(efc.final$f.bmi5y.cent)
+efc.final$f.height5y.cent <- as.numeric(scale(efc.final$f.height5y, center=T, scale=F))
+efc.final$v8.cent <- as.numeric(scale(efc.final$v8, center=T, scale=F))
+efc.final$v.momage.i.cent <- as.numeric(scale(efc.final$v.momage.i, center=T, scale=F))
+
+# Pick out variables to be used in analysis
+cont.vars <- c("f.bmiz5y.cent",
+               "f.height5y.cent",
+               "v8.cent",
+               "graffar.pca.score1",
+               "v.momage.i.cent",
+               "mom.bmi.before",
+               "hdl.cook.2",
+               "A.HDLc")
+
+cat.vars <- c( "sex",
+#               "R.momsmoke",
+#               "actua.ses.q38",
+               "hdl.cook.2",
+               "A.HDLc.alt.Cook",
+               "ID.v1")
+
+# subset the data based on the data above
+sub = efc.final[names(efc.final) %in% c(cont.vars, cat.vars)]
+
+names(sub)
+
+
+@
+
+
+% code adapted from descriptives.i2.R
+<<getdata1a, echo=FALSE, cache=F, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+# vars for the descriptive table
+efc.final$percentile.5y = round(pnorm(efc.final$f.bmiz5y)*100,0)
+mean(efc.final$percentile.5y)
+
+# identify variables by continuous or categorical status
+cont.vars <- c("f.bmi5y",
+               "f.bmiz5y",
+               "percentile.5y",
+          "f.height5y",
+          "v8",
+          "graffar.pca.score1",
+          "v.momage.i",
+          "mom.bmi.before",
+          "hdl.cook.2",
+          "A.HDLc",
+          "A.age")
+
+cat.vars <- c( "sex",
+               "R.momsmoke",
+               "actua.ses.q38",
+               "hdl.cook.2")
+
+sub.i2 <- efc.final[cont.vars]
+names(sub.i2)
+nrow(sub.i2)
+class(sub.i2$v8)
+
+# Note: do not use variable names with spaces in them. Instead use labels where appropriate.
+# see http://stackoverflow.com/questions/12744282/how-to-deal-with-spaces-in-column-names
+
+sub.i2.cat <- efc.final[cat.vars]
+names(sub.i2.cat)
+
+# Label the categorical values
+names(sub.i2.cat)
+levels(factor(sub.i2.cat$sex))
+levels(factor(sub.i2.cat$actua.ses.q38))
+sub.i2.cat$sex = factor(sub.i2.cat$sex, labels=c("Male",
+                                                 "Female"))
+sub.i2.cat$actua.ses.q38 <- factor(sub.i2.cat$actua.ses.q38, labels=c("Completed college",
+                                                                                    "Incomplete college",
+                                                                                    "Completed technical school",
+                                                                                    "Completed primary",
+                                                                                    "Incomplete primary",
+                                                                                    "Illiterate"))
+
+levels(sub.i2.cat$actua.ses.q38)
+table(sub.i2.cat$sex)
+
+# levels from SES codebook, Actua_SES-2.pdf
+#   1 = Univ completa (1)
+# - 2 = Univ incompleta (2)
+# - 3 = Media o ticnica comp (3)
+# - 4 = Basica completa o media incompleta (4)
+# - 5 = Basica incompleta (5)
+# - 6 = Analfabeto (6)
+
+sub.i2.cat.hmisc <- sub.i2.cat # make data set with variable names for summary only
+colnames(sub.i2.cat.hmisc)
+colnames(sub.i2.cat.hmisc) <- c("Sex of child",
+                          "Maternal smoking, yes",
+                          "Maternal education",
+                          "hdl.cook.2")
+# Note: col names with spaces bad programming practice, but easiest to put in summary Hmisc table.
+
+names(sub.i2)
+names(sub.i2[,-9])
+# make a data set with continuous and categorical for the aha abstract prep
+sub.i2.hmisc <- cbind(sub.i2.cat.hmisc, sub.i2[,-9])
+names(sub.i2.hmisc)
+colnames(sub.i2.hmisc)[c(5,8,9,10,11,12,13,7,6,14)] <- c("BMI at 5 yrs",
+                                                "Height (cm) at 5 yrs",
+                                                "Gestational age",
+                                                "HH index",
+                                                "Maternal age (years)",
+                                                "Maternal BMI before pregnancy",
+                                                "HDL at 17 yrs",
+                                                "BMI percentile",
+                                                "BMI z-score",
+                                                "Age, adolesence")
+#names(sub.i2.hmisc)
+head(sub.i2.hmisc)
+
+sub.i2.hmisc$total="Total"
+names(sub.i2.hmisc)
+colnames(sub.i2.hmisc)[c(4,10, 13)] = c("HDL-C", "SES index", "HDL (mg/dL) at 17 years")
+class(sub.i2.hmisc$"Gestational age")
+summary(sub.i2.hmisc$"Gestational age")
+@
+
+
+
+% Code for imputed parameter estimates
+
+% 2015-02-04. request for p-values... could use mice package?
+<<echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+
+# impute. really just mom.bmi.before, pca and momage.i.cent
+imp1 <- mice(sub[sub$sex==1,], m = 5)
+imp2 <- mice(sub[sub$sex==2,], m = 5)
+impt = mice(sub, m=5)
+
+imp1
+
+# BOYS
+# run the regression for boys, no adjustment...
+fit.1 = with(imp1, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent, family=binomial(link="logit")))
+summary(fit.1)
+pool(fit.1)
+df.fit.1 = summary(pool(fit.1))
+class(df.fit.1)
+
+# run regression for boys, with adjustment
+fit.1a = with(imp1, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent + f.height5y.cent + v8.cent + # boy is referent
+                  graffar.pca.score1 + v.momage.i.cent, family=binomial(link="logit")))
+df.fit.1a = summary(pool(fit.1a))
+
+# GIRLS
+# run the regression for girls, no adjustment...
+fit.2 = with(imp2, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent, family=binomial(link="logit")))
+df.fit.2 = summary(pool(fit.2))
+
+# run regression for boys, with adjustment
+fit.2a = with(imp2, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent + f.height5y.cent + v8.cent + # boy is referent
+                  graffar.pca.score1 + v.momage.i.cent, family=binomial(link="logit")))
+df.fit.2a = summary(pool(fit.2a))
+
+# TOTAL
+# run the regression for girls, no adjustment...
+fit.t = with(impt, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent, family=binomial(link="logit")))
+df.fit.t = summary(pool(fit.t))
+
+# run regression for boys, with adjustment
+fit.ta = with(impt, glm(A.HDLc.alt.Cook ~ f.bmiz5y.cent + f.height5y.cent + v8.cent + # boy is referent
+                  graffar.pca.score1 + v.momage.i.cent, family=binomial(link="logit")))
+df.fit.ta = summary(pool(fit.ta))
+
+# COMBINE all data together
+df.fit.t
+df.fit.ta
+
+fits = data.frame(rbind(df.fit.1[2,], df.fit.1a[2,], df.fit.2[2,], df.fit.2a[2,], df.fit.t[2,], df.fit.ta[2,]))
+fits
+fits$group = c(rep("Boy",2), rep("Girl",2), rep("Total", 2))
+fits$adj = c(rep(c("Adjusted*", "Unadjusted"),3))
+fits
+colnames(fits)[5]="pval"
+  fits$est.ci = with(fits, paste(sprintf("%.2f", round(exp(est), 2)),
+                                                    " (", 
+                                                    sprintf("%.2f", round(exp(est-1.96*se), 2)), 
+                                                    ", ",
+                                                    sprintf("%.2f", round(exp(est+1.96*se), 2)), 
+                                                    ")", sep=""))
+fits$pvalf = with(fits, {ifelse(pval<0.001, 
+                                "$<$ 0.001", 
+                                sprintf("%.3f", round(fits$pval,3)))})
+
+# do a table with tabular?
+tab.rev = with(fits, tabular( Heading(Group)*factor(group) ~ Heading("Covariate adjustment status")*factor(adj)*(Heading("Estimate")*identity*Heading()*est.ci + Heading("p-value")*identity*Heading()*pvalf) ))
+tab.rev
+#
+@
+
+
+% Code for plots
+% code below adapted from lr.zscore.1.R
+
+<<plots, echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+# Do plot of original (case-wise deletion) predicted values
+# ####################################
+
+####### For girls only ###############
+lr1z.alt.g <- glm(data=sub[sub$sex==2,],  A.HDLc.alt.Cook ~ f.bmiz5y.cent,
+                 family=binomial(link="logit")) # z-scores
+
+lr1z.alt.g.quad <- glm(data=sub[sub$sex==2,],  A.HDLc.alt.Cook ~ f.bmiz5y.cent + I(f.bmiz5y.cent^2) + I(f.bmiz5y.cent^3),
+                 family=binomial(link="logit")) # z-scores, including a quadratic slope
+
+
+lrm(data=sub[sub$sex==2,],  A.HDLc.alt.Cook ~ f.bmiz5y.cent)
+lr1z.alt.g
+lrm(data=sub[sub$sex==2,],  A.HDLc.alt.Cook ~ rcs(f.bmiz5y.cent)) # no sig terms
+
+anova(lr1z.alt.g, lr1z.alt.g.quad, test="Chisq")
+
+summary(lr1z.alt.g)
+summary(lr1z.alt.g.quad)
+
+
+lr1z.alt.g.just.int = update(lr1z.alt.g, A.HDLc.alt.Cook ~ 1)
+test.slope.girls = anova(lr1z.alt.g.just.int, lr1z.alt.g,  test="Chisq")
+rownames(test.slope.girls)=c("With bmi", "Without bmi")
+test.slope.girls # test if slope effect is significant. it's not.
+
+
+
+sub.f = sub[sub$sex==2,]
+max(sub.f$f.bmiz5y.cent) # for girls max is only 2.13; greater for boys.
+newdata2z.g <- with(sub[sub$sex==2,],
+                   data.frame(f.bmiz5y.cent = rep(seq(from=min(f.bmiz5y.cent), to=max(f.bmiz5y.cent), length.out=100),
+                   )))
+
+newdata3z.g <- cbind(newdata2z.g, predict(lr1z.alt.g, 
+                                        newdata = newdata2z.g,
+                                        type = "link",
+                                        se = TRUE))
+
+newdata3z.g <- within(newdata3z.g, {
+  PredictedProb <- plogis(fit)
+  LL <- plogis(fit - (1.96 * se.fit))
+  UL <- plogis(fit + (1.96 * se.fit))
+})
+
+## view first few rows of final dataset
+head(newdata3z.g)
+
+girlz = ggplot(newdata3z.g, aes(x = f.bmiz5y.cent, y = PredictedProb)) + 
+  geom_line(size=1) +
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.2) +
+  theme_bw() +
+  ylim(0.2,1)+
+  xlim(-2,3)+
+  ylab("Predicted probability of low HDL-C level at 17 years") +
+  xlab("BMI Z-scores at 5 years") +
+  ggtitle("Females")
+
+# girlz
+
+####### For boys only ###############
+lr1z.alt.b <- glm(data=sub[sub$sex==1,],  A.HDLc.alt.Cook ~ f.bmiz5y.cent,
+                 family=binomial(link="logit")) # z-scores
+summary(lr1z.alt.b)
+lr1z.alt.b.just.int = update(lr1z.alt.b, A.HDLc.alt.Cook ~ 1)
+test.slope.boys = anova(lr1z.alt.b.just.int, lr1z.alt.b,  test="Chisq")
+rownames(test.slope.boys)=c("With bmi", "Without bmi")
+test.slope.boys # test if slope effect is significant. it's sig.
+
+newdata2z.b <- with(sub[sub$sex==1,],
+                   data.frame(f.bmiz5y.cent = rep(seq(from=min(f.bmiz5y.cent), to=max(f.bmiz5y.cent), length.out=100),
+                   )))
+
+newdata3z.b <- cbind(newdata2z.b, predict(lr1z.alt.b, 
+                                        newdata = newdata2z.b,
+                                        type = "link",
+                                        se = TRUE))
+
+newdata3z.b <- within(newdata3z.b, {
+  PredictedProb <- plogis(fit)
+  LL <- plogis(fit - (1.96 * se.fit))
+  UL <- plogis(fit + (1.96 * se.fit))
+})
+
+## view first few rows of final dataset
+head(newdata3z.b)
+
+boyz = ggplot(newdata3z.b, aes(x = f.bmiz5y.cent, y = PredictedProb)) + 
+  geom_line(size=1) +
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.2) +
+  theme_bw() +
+  ylim(0.2,1)+
+  xlim(-2,3)+
+  ylab("Predicted probability of low HDL-C level at 17 years") +
+  xlab("BMI Z-scores at 5 years") +
+  ggtitle("Males")
+
+# boyz
+
+####### TOTAL SAMPLE ###############
+lr1z.alt <- glm(data=sub,  A.HDLc.alt.Cook ~ f.bmiz5y.cent,
+                 family=binomial(link="logit")) # z-scores
+lr1z.alt.just.int = update(lr1z.alt, A.HDLc.alt.Cook ~ 1)
+test.slope = anova(lr1z.alt.just.int, lr1z.alt,  test="Chisq")
+rownames(test.slope)=c("With bmi", "Without bmi")
+test.slope # test if slope effect is significant. it's sig.
+
+newdata2z <- with(sub,
+                   data.frame(f.bmiz5y.cent = rep(seq(from=min(f.bmiz5y.cent), to=max(f.bmiz5y.cent), length.out=100),
+                   )))
+
+newdata3z <- cbind(newdata2z, predict(lr1z.alt, 
+                                        newdata = newdata2z,
+                                        type = "link",
+                                        se = TRUE))
+
+newdata3z <- within(newdata3z, {
+  PredictedProb <- plogis(fit)
+  LL <- plogis(fit - (1.96 * se.fit))
+  UL <- plogis(fit + (1.96 * se.fit))
+})
+
+## view first few rows of final dataset
+head(newdata3z)
+
+both.z = ggplot(newdata3z, aes(x = f.bmiz5y.cent, y = PredictedProb)) + 
+  geom_line(size=1) +
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.2) +
+  theme_bw() +
+  ylim(0.2,1)+
+  xlim(-2,3)+
+  ylab("Predicted probability of low HDL-C level at 17 years") +
+  xlab("BMI Z-scores at 5 years") +
+  ggtitle("All")
+#  both.z
+
+# make final plot with all lines on one figure
+# have both boys and girls on same plot for poster?
+
+allz = ggplot(newdata3z.b, aes(x = f.bmiz5y.cent, y = PredictedProb, color="Males")) + 
+  geom_line(size=1) +
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.2, color="lightblue", fill="lightblue") +
+  geom_line(data=newdata3z.g, aes(x=f.bmiz5y.cent, y=PredictedProb, color="Females"), size=1) +
+  geom_ribbon(data=newdata3z.g, aes(ymin = LL, ymax = UL), alpha = 0.2, color="pink", fill="pink") +
+  geom_line(data=newdata3z, aes(x=f.bmiz5y.cent, y=PredictedProb, color="Total"), size=1) +
+  #geom_ribbon(data=newdata3z, aes(ymin = LL, ymax = UL), alpha = 0.2, color="gray", fill="gray") +
+  scale_colour_manual("",
+                      breaks = c("Females", "Males", "Total"),
+                      values = c("red", "blue", "black")) +
+  theme_bw(base_size = 25) +
+  ylim(0.2,1)+
+  xlim(-2,3)+
+  ylab("Predicted probability of low HDL-C level \n at 17 years") +
+  xlab("BMI Z-scores at 5 years") +
+  theme(legend.position="top") +
+  #eliminates background, gridlines, and chart border
+  theme(panel.border = element_blank(), legend.text=element_text(size=25)) +
+  #draws x and y axis line
+  theme(axis.line = element_line(color = 'black'))
+
+#allz
+
+# code adapted from lar.zscore.1.R
+# plot genders together
+setwd("C:/Users/vonholle/Documents/grad_school/classes/epid.718/projects/part2/install2")
+source("multiplot.R")
+#multiplot(boyz, girlz, cols=2)
+
+@
+
+
+
+% ---------------------------------------------------------%
+% Set up a column
+\begin{column}{0.30\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth} % tweaks the width, makes a new \textwidth
+
+
+
+\begin{block}{Aim}
+\begin{itemize}
+\large 
+  \item Examine the association between BMI z-score measured at 5 years and low HDL-C levels at 17 years old in the Santiago Longitudinal Cohort Study.
+\end{itemize}
+  % Global prevalence of childhood obesity has reached epidemic proportions. Elevated body mass index (BMI) leads to a cascade of negative health outcomes including hyperlipidemia, hypertension, and diabetes, thus increasing risk for cardiovascular disease (CVD). Some studies have documented an association between early childhood obesity and CVD risk factors. To date, studies have been primarily cross sectional and in European descent populations. Thus, the relationship between childhood obesity and later CVD risk is inadequately understood. To increase our understanding of this complex relationship, this study aims to assess the association between 5-year BMI and HDL-C levels at 17 years in a Chilean longitudinal cohort study.
+  \end{block}
+
+% Switched from tikz to doing graphviz (gvedit.exe) program. made dag1.png in graph3.gv
+
+% Also might want to check out http://tex.stackexchange.com/questions/9057/best-practice-for-control-flow-charts
+
+\begin{block}{Method}
+
+%------------------------------------------
+\begin{wrapfigure}{l}{20cm}
+\includegraphics[width=20cm]{graph4}
+\label{wrap-fig:2}
+\end{wrapfigure} 
+%------------------------------------------
+{\large
+Logistic regression models were used to estimate the odds ratios of low HDL-C ($\le$40 mg/dL) for a one unit change in BMI z-scores at age 5. Analyses stratified by sex of child and multiple imputation methods handled missing values. 
+% We used longitudinal data from the Santiago Longitudinal Cohort study. Participants were enrolled as infants between 1991 and 1996. As such, they have experienced Chile's rapid modernization and dramatic changes in diet, activity, and environment. At 5 years, height and weight were measured to 0.1 kg using a SECA scale and 0.1 cm using a Holtain stadiometer. BMI (kg/m2) was calculated and converted to z-scores (WHO Standards). HDL-C was measured following standard protocols and classified as low if HDL-C $\le$ 40 mg/dL. We implemented a logistic regression to assess the association between BMI z-scores at age five and clinically defined low HDL-C levels at age 17. Covariates in the model included sex, gestational age, maternal education, household social status, and maternal age at birth.
+
+%------------------------------------------
+}
+
+
+  \end{block}
+
+% A different way of getting the statistics into a table
+<<echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+
+names(sub.i2.hmisc)
+names(sub.i2.hmisc[c(-3,-10)])
+sapply(sub.i2.hmisc[-3], class)
+
+## Make categorical variables factors
+#varsToFactor <- cat.vars
+#mydata[varsToFactor] <- lapply(mydata[varsToFactor], factor)
+#sapply(mydata[tot.vars], class) # double check status
+t1 = CreateTableOne(data =sub.i2.hmisc[c(-3,-14)], 
+                    test=F) #note, if you don't use test=F this takes forever and I don't want to test that many variables anyhow....
+class(t1)
+
+# http://cran.r-project.org/web/packages/tableone/vignettes/introduction.html
+t1out <- print(t1, quote = F,  noSpaces = TRUE, printToggle = FALSE)
+class(t1out)
+
+t1out.df = data.frame(t1out)
+t1out.df
+xt1 = xtable(t1out.df)
+align(xt1) = "lr"
+
+names(sub.i2.hmisc)
+names(sub.i2.hmisc[c(-3,-10,-14)])
+table(sub.i2.hmisc[1]) # check formatting for sex of child
+@
+
+
+\begin{block}{Descriptive Statistics}
+
+\vskip-1ex
+
+\begin{table}
+%\caption{\large Table 1. Descriptive statistics}
+\large
+<<table1, results='asis'>>=
+#   print(xt1, 
+#         booktabs=T,
+#         size="\\large",
+#         table.placement="H",
+#         floating=F) # this works out ok... with mean(sd) only. no iqr
+
+latex(summary(sub.i2.hmisc$"Sex of child" ~ ., 
+               data=sub.i2.hmisc[c(6,8,9,10,11,13,4)], # taking out maternal education for now
+               method='reverse', continuous=4,
+              overall=F), 
+      msdsize="normalsize",
+       file='',
+      title=NULL,
+       digits=2,
+       float=F, 
+       here=T,
+       label="T1",
+       long=F, # this bumps first group to its own row
+      #caption="\\large Table 1. Descriptive statistics",
+      caption="",
+       booktabs=T,
+      subtitles=F,
+      trios=T,
+      table.env=F
+       #prmsd=T
+     )
+
+@
+\end{table}
+\end{block}
+
+ \end{minipage}
+\end{beamercolorbox}
+\end{column}
+% ---------------------------------------------------------%
+% end the column
+
+
+% ---------------------------------------------------------%
+% Set up a column
+\begin{column}{0.30\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth} % tweaks the width, makes a new \textwidth
+
+\begin{block}{Results}
+%The total sample included 677 children who had weight measurements at age five and subsequent cardiovascular testing at age 17. Descriptive statistics include: 47\% female, mean 5-year BMI percentile was 72.5 $\pm$ 25.2, mean 17-year HDL-C was 40.2 $\pm$ 10.6, and 53\% (n=359) in the low HDL-C group. Mean 5-year BMI percentile was higher in the low HDL-C group than the high HDL-C group (75.2 $\pm$ 24.2 vs. 69.4 $\pm$ 26.1). Without adjustment for relevant confounders, BMI z-score was associated with an odds ratio of 1.32 (95\% CI: 1.13, 1.55; p-value $<$ 0.01) for the low HDL-C group compared to the high HDL-C group. With adjustment for all relevant confounders the adjusted odds ratio was 1.36 (95\% CI: 1.15, 1.60; p-value $<$ 0.01).
+
+<<echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide'>>=
+#
+booktabs() # for some reason you have to run this command line for the yes and no to be separated properly.
+@
+
+
+\begin{figure}
+\centering
+\caption{\large Figure 1. Association between BMI z-scores and HDL-C}
+\resizebox{.8\textwidth}{!}{%
+<<show.plot.girl, echo=FALSE, cache=T, message=FALSE, warning=FALSE, error=FALSE, results='hide', fig.align='center', fig.width=10, fig.height=8, out.height="0.8\\textwidth", out.width="1.0\\textwidth", fig.pos="H">>=
+ allz
+ #multiplot(boyz, girlz, cols=2) # plot side by side instead of superimposed.
+@
+}
+\end{figure}
+
+\footnotesize Note: Bands represent 95\% confidence bands for the predicted regression line.
+
+\vskip2ex
+\hline
+
+\begin{table}[H]
+\centering
+\caption{\large Table 2. Odds ratios (95\% CI) of low HDL-C groups for a one unit change in BMI z-score}
+\label{t4}
+\large
+<<regress1, results='asis'>>=
+
+latex(tab.rev, 
+      file="", 
+      booktabs=T, 
+      greek=T)
+
+# latex(tabular( Heading()*Group ~ Heading("Adjustment Status*")*identity*(Adjusted + Crude), 
+#                data=tab.2),
+#       booktabs=T, 
+#       file='')
+# Note: to make the table below I used the code above to generate a latex table then altered it to look better.
+# that file is at sampletable.20150123.tex
+@
+\vskip-1ex
+\begin{singlespace}\caption{\small*Adjusted for child height at age 5, gestational age, SES index, and maternal age. Multiple imputation (MI) used for missing values.}\end{singlespace}
+\end{table}
+% \begin{tabular}{lcc}
+%  & \multicolumn{2}{c}{Adjustment Status*} \\ \cmidrule[2pt](lr){2-3}
+%   & Adjusted & \multicolumn{1}{c}{Crude} \\ 
+% \cmidrule[2pt](lr){2-2} \cmidrule[2pt](lr){3-3}
+% Boy  & 1.48 (1.19, 1.86) & 1.51 (1.21, 1.87) \\
+% Girl  & 1.25 (0.97, 1.60) & 1.18 (0.93, 1.51) \\
+% \cmidrule[2pt](lr){2-3}
+% Total  & 1.37 (1.16, 1.62) & 1.33 (1.14, 1.55) \\
+% \end{tabular}
+% 
+% \vskip-2ex
+% \begin{singlespace}\caption{\small*Adjusted for child height at age 5, gestational age, SES index, and maternal age. Multiple imputation (MI) used for missing values.}\end{singlespace}
+% 
+% \end{table}
+
+
+\begin{itemize}
+  \item \large \textbf{Overall positive association} between BMI at 5 years of age and low HDL-C levels at 17 years.
+  \item \large \textbf{Sex differences}: Girls demonstrate a lower odds ratio of low HDL-C for a one unit increase in BMI than boys.
+\end{itemize}
+
+\end{block}
+
+ \end{minipage}
+\end{beamercolorbox}
+\end{column}
+
+% ---------------------------------------------------------%
+% end the column
+
+
+% ---------------------------------------------------------%
+% Set up a column
+\begin{column}{0.18\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth} % tweaks the width, makes a new \textwidth
+% fill each column with content
+\vfill
+
+\begin{block}{Summary}
+  \begin{itemize}
+    \item \large Results support continued focus on weight in childhood to mitigate development of cardiovascular risk factors.
+    \item \large BMI z-score is a stronger predictor of adverse HDL-C levels in boys compared to girls. These sex differences in risk factors in childhood can inform prevention efforts.
+    \end{itemize}
+\end{block}
+
+\begin{block}{Future Efforts}
+  \begin{itemize}
+  \large
+        \item Replicate the analysis in a new sample. Differing associations between BMI and HDL-C by sex of child may be a chance finding.
+%        \item Investigate the relationship between child weight trajectories and HDL-C.
+        \item Consider other measures of adiposity and other risk factors associated with adiposity in childhood.
+  \end{itemize}
+\end{block}
+
+\begin{block}{Acknowledgements}
+{\large We thank all study participants for their generosity in time and support for this ongoing project.} {\small The Santiago Longitudinal Cohort Study was supported by NIH: NHLBI R01 HL088530 (PI: Gahagan) and NICHD R01 HD33487 (PIs: Gahagan and Lozoff)}.
+
+\end{block}
+
+
+\vfill
+
+% \begin{block}{References}
+% 
+%   \begin{center}
+%   \includegraphics[scale=0.35]{qrcode-vonholle-chart.png}
+%   \end{center}
+%   
+%   \footnotesize
+% %\bibliographystyle{unsrtnat}
+% %\bibliography{regional}
+% \end{block}
+\vfill
+\end{minipage}
+\end{beamercolorbox}
+\end{column}
+% ---------------------------------------------------------%
+% end the column
+\end{columns}
+\vskip1ex
+
+\end{frame}
+\end{document}
